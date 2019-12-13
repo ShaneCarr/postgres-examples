@@ -1,0 +1,206 @@
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+SELECT uuid_generate_v1();
+
+select * from jobs;
+select * from runningJobs;
+DELETE FROM runningjobs WHERE job_id = NEW.id;
+truncate table jobs cascade
+
+ALTER TABLE jobs
+ADD COLUMN isRunning varchar(128) NOT NULL DEFAULT uuid_generate_v1()::varchar Unique
+
+select * from jobs
+UPdate jobs set state = 'JOB_COMPLETED' where id =7
+
+drop trigger clear on jobs
+drop function clear;
+
+
+-- test running jobs
+  CREATE OR REPLACE FUNCTION runningjobs() returns trigger as $$
+  BEGIN
+	IF (NEW.state = 'JOB_IN_PROGRESS') THEN
+	    IF NOT EXISTS(SELECT 1 FROM runningjobs where JOB_ID = NEW.id) THEN
+	    	INSERT INTO runningjobs(type, network_id, group_id, job_id) VALUES (NEW.type, NEW.network_id, NEW.group_id, NEW.id);
+		END IF;
+	ELSE
+	    DELETE FROM runningjobs WHERE job_id = NEW.id;
+	END IF;
+	RETURN NEW;
+  END;
+  $$ language plpgsql;
+
+DROP  TRIGGER if exists updaterunningjos on jobs;
+DROP FUNCTION runningjobs();
+
+CREATE  TRIGGER updaterunningjos AFTER UPDATE OR INSERT ON jobs
+      FOR EACH ROW EXECUTE PROCEDURE runningjobs();	  
+	  
+	  delete from jobs cascade
+	  select * from partitions
+select * from jobs
+
+select * from jobs;
+select * from runningJobs;
+
+DELETE FROM runningjobs
+	
+	call createjob(
+		  1,
+		  1,
+		  'MIGRATE_FILES',
+		  'JOB_IN_PROGRESS',
+		  null,
+		  0,
+		  'c',
+		  't');
+		  
+		call createjob(
+		  1,
+		  1,
+		  'MIGRATE_FILES',
+		  'COMPLETE',
+		  null,
+		  0,
+		  'c',
+		  't');
+		  
+		select * from jobs;
+		
+		select * from runningjobs;
+		
+		
+		select * from jobs
+		update jobs set group_id =2, partition_count=1, network_id=2, correlation_id=3, transaction_id=44, state='COMPLETE'
+		
+		truncate table jobs cascade
+		
+		truncate table jobs
+drop PROCEDURE createjob
+
+CREATE OR REPLACE PROCEDURE createjob(
+	INOUT gid bigint,
+	INOUT nid bigint,
+	type varchar(40),
+	state varchar(40),
+	jobProperty jsonb, 
+	pcount bigint, 
+	cid  varchar(40),
+	tid  varchar(40))
+LANGUAGE plpgsql 
+AS $$
+BEGIN
+	    INSERT INTO 
+        Jobs(
+        GROUP_ID ,
+        NETWORK_ID ,
+        TYPE ,
+        STATE ,
+        JOB_PROPERTY ,
+        PARTITION_COUNT,
+        CORRELATION_ID ,
+        TRANSACTION_ID 
+        ) VALUES ( 
+        gid,
+        nid,
+		type,
+        state ,
+        jobProperty, 
+        pcount,
+        cid,
+        tid );
+
+END;
+$$;
+ 
+	  
+	  CREATE TRIGGER Create_Job_UXCOlumn BEFORE INSERT OR UPDATE ON jobs
+      FOR EACH ROW EXECUTE PROCEDURE Create_Job_UXCOlumn();
+	  
+	  
+	  
+	  
+	  
+	  
+	  select * from jobs
+	    INSERT INTO 
+        Jobs(
+        GROUP_ID ,
+        NETWORK_ID ,
+        TYPE ,
+        STATE ,
+        JOB_PROPERTY ,
+        PARTITION_COUNT,
+        CORRELATION_ID ,
+        TRANSACTION_ID 
+        ) VALUES ( 
+        1,
+        1,
+		'MIGRATION_JOB' ,
+        'JOB_IN_PROGRESS2' ,
+        null, 
+        0,
+        'test',
+        'test' ) 
+
+
+create job:
+     is job running?
+	 
+	     insert 
+    
+	 select * from j where t,s,netid
+	 
+	 
+	 select * from jobs
+
+select UUID
+update jobs set network_id=43
+drop  FUNCTION tst_dates_func() 
+
+CREATE OR REPLACE FUNCTION tst_dates_func() 
+    RETURNS  varchar(40) as
+$BODY$   
+BEGIN
+    --perform SELECT 'test';
+    return value
+     SELECT 'test';
+
+END;
+$BODY$
+      LANGUAGE plpgsql;
+	  SELECT uuid_generate_v1()::varchar
+select tst_dates_func();
+
+CREATE OR REPLACE FUNCTION isRunning (runningValue varchar(40)) RETURNS text AS $$
+BEGIN
+	     IF (runningValue != 'JOB_IN_PROGRESS') THEN
+           --SELECT uuid_generate_v1()::varchar;
+		   return query
+		    SELECT 'test';
+         END IF; 
+		 return query
+    SELECT 'test';
+       END;
+       $$ language plpgsql;
+
+select isRunning('x')
+
+--       CREATE FUNCTION validate_createJob() returns trigger as $$
+--       DECLARE
+--         events_count int;
+--       BEGIN
+--         events_count := (SELECT COUNT(*) FROM events WHERE (
+--           events.calendar_id = NEW.calendar_id AND events.begins_at < NEW.finishes_at AND events.finishes_at > NEW.begins_at AND events.id != NEW.id
+--         ));
+--         IF (events_count != 0) THEN
+--           RAISE EXCEPTION 'Period between % and % is already taken', NEW.begins_at, NEW.finishes_at;
+--         END IF;
+--         RETURN NEW;
+--       END;
+--       $$ language plpgsql;
+
+--       CREATE TRIGGER validate_event_availability_trigger BEFORE INSERT OR UPDATE ON events
+--       FOR EACH ROW EXECUTE PROCEDURE validate_event_availability();
+-- create a trigger
